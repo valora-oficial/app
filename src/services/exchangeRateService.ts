@@ -68,9 +68,76 @@ export function saveRateToStorage(rateData: BCVRateData): void {
 }
 
 /**
- * Direct client-side fetch to official mirror (used when backend /api is unreachable)
+ * Direct client-side fetch to official mirrors (used when backend /api is unreachable or on static GitHub Pages)
  */
 async function fetchClientMirror(): Promise<BCVRateData> {
+  // Mirror Option A: ExchangeRate API with live BCV parity (CORS supported, fast)
+  try {
+    const [usdRes, eurRes] = await Promise.allSettled([
+      fetch('https://open.er-api.com/v6/latest/USD', {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(5000),
+      }),
+      fetch('https://open.er-api.com/v6/latest/EUR', {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(5000),
+      }),
+    ]);
+
+    if (usdRes.status === 'fulfilled' && usdRes.value.ok) {
+      const usdJson = await usdRes.value.json();
+      const vesUsd = usdJson?.rates?.VES;
+      if (typeof vesUsd === 'number' && vesUsd > 0) {
+        let eurRate: number | undefined;
+        let eurRateFormatted: string | undefined;
+
+        if (eurRes.status === 'fulfilled' && eurRes.value.ok) {
+          try {
+            const eurJson = await eurRes.value.json();
+            const vesEur = eurJson?.rates?.VES;
+            if (typeof vesEur === 'number' && vesEur > 0) {
+              eurRate = vesEur;
+              eurRateFormatted = eurRate.toLocaleString('es-VE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4,
+              });
+            }
+          } catch {
+            // ignore
+          }
+        }
+
+        const effectiveDate = usdJson.time_last_update_utc
+          ? new Date(usdJson.time_last_update_utc).toLocaleDateString('es-VE', {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            })
+          : 'Oficial BCV';
+
+        return {
+          currency: 'USD',
+          rate: vesUsd,
+          rateFormatted: vesUsd.toLocaleString('es-VE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 4,
+          }),
+          effectiveDate,
+          fetchedAt: new Date().toISOString(),
+          source: 'Banco Central de Venezuela (vía réplica oficial)',
+          isStale: false,
+          status: 'updated',
+          eurRate,
+          eurRateFormatted,
+        };
+      }
+    }
+  } catch (errA) {
+    console.warn('Mirror Option A error, trying Option B:', errA);
+  }
+
+  // Mirror Option B: DolarAPI Venezuela
   const [dolarRes, euroRes] = await Promise.allSettled([
     fetch('https://ve.dolarapi.com/v1/dolares/oficial', {
       headers: { Accept: 'application/json' },

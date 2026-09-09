@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { RateStatusType, ThemeMode } from '../types';
 import { usePWAInstall } from '../hooks/usePWAInstall';
+import { ValoraLogo } from './ValoraLogo';
 
 interface HeaderProps {
   status: RateStatusType;
@@ -78,13 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Brand identity */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center p-1.5 shadow-sm border border-slate-800">
-            <img
-              src="/icon.svg"
-              alt="VALORA logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <ValoraLogo size={40} className="w-10 h-10 shadow-sm" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black tracking-tight text-black dark:text-white">
@@ -278,10 +273,8 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
           <div className="w-full max-w-md rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-slate-300 dark:border-zinc-800 max-h-[90vh] overflow-y-auto text-black dark:text-white">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-black dark:bg-zinc-800 p-1 flex items-center justify-center border border-transparent dark:border-zinc-700">
-                  <img src="/icon.svg" alt="VALORA" className="w-full h-full" />
-                </div>
+              <div className="flex items-center gap-2.5">
+                <ValoraLogo size={28} className="w-7 h-7" />
                 <h3 className="text-base font-bold text-black dark:text-white">
                   Acerca de VALORA
                 </h3>

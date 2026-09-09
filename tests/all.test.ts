@@ -154,6 +154,16 @@ console.log('\n2. Pruebas de Conversión y Formato Monetario Venezolano:');
   console.log('  ✔ Conversión USD -> VES a tasa 820.10 ($100 -> Bs. 82.010,00)');
 }
 
+// Conversion test: EUR 100 at current live BCV rate 954.0244 -> 95402.44
+{
+  const eurRate = 954.0244;
+  const eur = 100;
+  const ves = Math.round(eur * eurRate * 100) / 100;
+  assert.equal(ves, 95402.44);
+  assert.equal(formatBolivares(ves), 'Bs. 95.402,44');
+  console.log('  ✔ Conversión EUR -> VES a tasa BCV oficial 954.0244 (€100 -> Bs. 95.402,44)');
+}
+
 // Conversion test: EUR 100 at rate 947.30 -> 94730.00
 {
   const eurRate = 947.30;

@@ -1,0 +1,24 @@
+================================================================================
+                           VALORA — INFORMACIÓN DE LA WEBAPP
+                                Tu valor, actualizado.
+================================================================================
+
+Puedes consultar el documento completo y detallado en:
+./informacion-webapp.txt
+
+RESUMEN RÁPIDO:
+- Aplicación: VALORA
+- Descripción: Calculadora inteligente y conversor de divisas (USD / EUR / VES)
+  con la tasa oficial del Banco Central de Venezuela (BCV).
+- Fuente: Banco Central de Venezuela (https://www.bcv.org.ve/)
+- Modo de funcionamiento: En línea y Fuera de línea (Offline PWA).
+- Funcionalidades:
+  1. Conversor multidivisa con formato oficial de comas y puntos venezolanos.
+  2. Calculadora matemática segura (precedencia de operaciones y porcentajes).
+  3. Herramientas financieras (Vuelto multimoneda, desglose de cono monetario, IVA e IGTF).
+  4. Historial de conversiones y operaciones.
+  5. Instalable en Android, iOS y computadoras (Windows/Mac/Linux).
+- Privacidad: 100% privada, sin anuncios, sin registro ni recopilación de datos.
+
+Documento detallado disponible en /informacion-webapp.txt
+================================================================================

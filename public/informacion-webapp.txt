@@ -1,0 +1,134 @@
+================================================================================
+                           VALORA — INFORMACIÓN GENERAL DE LA WEBAPP
+                                Tu valor, actualizado.
+================================================================================
+
+1. IDENTIDAD Y RESUMEN GENERAL
+--------------------------------------------------------------------------------
+Nombre de la aplicación: VALORA
+Eslogan: Tu valor, actualizado.
+Tipo de aplicación: Progressive Web App (PWA), Calculadora Matemática y Conversor de Divisas
+Propósito: Proveer a los ciudadanos, comerciantes y profesionales en Venezuela de una
+herramienta confiable, ultra rápida, precisa y sin distracciones para calcular conversiones
+monetarias y operaciones financieras basadas exclusivamente en la tasa oficial del
+Banco Central de Venezuela (BCV).
+
+Principios clave de diseño:
+- 100% Gratuita y de acceso público.
+- Cero publicidad intrusiva y sin pop-ups comerciales.
+- Cero registro de usuarios ni recopilación de información privada.
+- Funciona tanto en línea como fuera de línea (offline-first).
+- Diseño moderno, accesible, con temas Claro, Oscuro y Automático del Sistema.
+
+
+2. FUENTE OFICIAL DE TASAS DE CAMBIO
+--------------------------------------------------------------------------------
+Fuente primaria: Banco Central de Venezuela (BCV) — https://www.bcv.org.ve/
+Divisas oficiales soportadas:
+- Dólar estadounidense (USD)
+- Euro de la Unión Europea (EUR)
+- Bolívar Digital / Soberano de la República Bolivariana de Venezuela (VES)
+
+Metodología de tasa:
+El tipo de cambio publicado por el BCV corresponde al promedio ponderado resultante
+de las operaciones diarias de las mesas de cambio activas de las instituciones bancarias
+del país. VALORA extrae y sincroniza esta cotización y su correspondiente "Fecha Valor"
+oficial emitida por el ente emisor.
+
+
+3. ARQUITECTURA TÉCNICA Y NIVELES DE RESILIENCIA (TIERS)
+--------------------------------------------------------------------------------
+Para garantizar que la aplicación NUNCA deje de funcionar en el contexto de internet
+venezolano, VALORA implementa una arquitectura de cuatro niveles de contingencia:
+
+- NIVEL 1 (Backend Node.js / Express):
+  En entornos con servidor propio, un servicio backend consulta directamente el portal
+  del BCV con reintentos y almacena la tasa en memoria con una ventana de caché de 5 minutos,
+  evitando sobrecargar los servidores oficiales y entregando respuestas en milisegundos.
+
+- NIVEL 2 y 3 (Espejos oficiales de alta velocidad):
+  En entornos estáticos (como GitHub Pages) donde no hay servidor backend disponible, el
+  navegador consulta automáticamente réplicas sincronizadas con soporte CORS que reflejan
+  exactamente la paridad oficial del BCV en tiempo real.
+
+- NIVEL 4 (Persistencia Local y Modo Offline):
+  Toda tasa consultada con éxito se almacena en el almacenamiento local seguro del navegador
+  (LocalStorage / IndexedDB). Si el usuario se queda sin conexión a internet, la aplicación
+  sigue operativa al 100%, señalando claramente el estado "Sin conexión" o "Última tasa guardada"
+  junto con la fecha y hora de la última actualización.
+
+
+4. FUNCIONALIDADES Y MÓDULOS DE LA APLICACIÓN
+--------------------------------------------------------------------------------
+
+A. CONVERSOR MULTIDIVISA:
+- Conversión instantánea bidireccional:
+  * Dólares (USD) a Bolívares (VES) y viceversa.
+  * Euros (EUR) a Bolívares (VES) y viceversa.
+- Formato oficial venezolano: Separación de miles por puntos y decimales por comas
+  (ejemplo: Bs. 820,10 / Bs. 954,02).
+- Botones de selección rápida para montos comunes ($1, $5, $10, $20, $50, $100).
+- Copiado al portapapeles con un solo toque.
+- Transferencia de resultados hacia la calculadora o al historial con un clic.
+
+B. CALCULADORA MATEMÁTICA SEGURA:
+- Motor de cálculo basado en un analizador sintáctico (parser de descenso recursivo),
+  evitando estrictamente el uso de funciones inseguras como `eval()`.
+- Respeta la precedencia de operadores matemáticos (paréntesis, multiplicación, división, suma, resta).
+- Manejo inteligente de porcentajes para finanzas comerciales:
+  * Incrementos de porcentaje (ej: 100 + 16% = 116 para cálculo de IVA).
+  * Descuentos de porcentaje (ej: 100 - 20% = 80 para promociones).
+  * Multiplicación porcentual (ej: 500 * 10% = 50).
+- Compatible tanto con teclado táctil en pantalla como con el teclado físico de tu computadora.
+
+C. HERRAMIENTAS FINANCIERAS PARA COMERCIO VENEZOLANO:
+- Calculador de Vuelto Multimoneda: Resuelve el problema común de pagos mixtos
+  (cuando un cliente paga con un billete en divisas y se calcula el cambio exacto en bolívares
+  vía Pago Móvil o efectivo).
+- Desglose de Billetes y Efectivo: Optimiza la entrega de billetes según el cono monetario vigente.
+- Calculador de Impuestos:
+  * IVA general (16%) y tasa reducida (8%).
+  * IGTF (Impuesto a las Grandes Transacciones Financieras - 3% en pagos con divisas).
+
+D. HISTORIAL DE OPERACIONES:
+- Registro cronológico de conversiones y cuentas realizadas durante la sesión.
+- Opción de reutilizar montos o limpiar el registro con un clic.
+
+
+5. INSTALACIÓN COMO APLICACIÓN NATIVA (PWA)
+--------------------------------------------------------------------------------
+VALORA está desarrollada bajo los estándares de Progressive Web App (PWA):
+
+- En dispositivos Android (Google Chrome):
+  1. Pulsa el botón "Instalar app" ubicado en la barra superior.
+  2. O pulsa el menú de tres puntos de Chrome y selecciona "Instalar aplicación" / "Agregar a pantalla principal".
+
+- En dispositivos iOS (iPhone / iPad en Safari):
+  1. Pulsa el botón "Compartir" (ícono del cuadrado con flecha hacia arriba) en la barra inferior de Safari.
+  2. Desplázate hacia abajo y selecciona "Agregar al inicio" (+).
+  3. Pulsa "Agregar" en la esquina superior derecha.
+
+- En computadoras de escritorio (Windows, Mac, Linux):
+  1. En Google Chrome o Microsoft Edge, pulsa el ícono de instalación en la barra de direcciones
+     o el botón "Instalar app" en la cabecera.
+  2. La app se abrirá en una ventana independiente y creará un acceso directo en tu escritorio.
+
+
+6. DESPLIEGUE Y OPERACIÓN TÉCNICA
+--------------------------------------------------------------------------------
+- Stack de Frontend: React 18, TypeScript, Vite, Tailwind CSS, Lucide Icons, Vite PWA Plugin.
+- Stack de Backend opcional: Node.js, Express, TSX, Esbuild.
+- Automatización CI/CD:
+  * Flujo de trabajo en `.github/workflows/deploy.yml`.
+  * Integración con GitHub Pages y GitHub Actions con Node.js 22 LTS.
+  * Rutas relativas (`base: './'`) para funcionar en dominios propios o subdirectorios de repositorios.
+
+
+7. PRIVACIDAD, SEGURIDAD Y LICENCIA
+--------------------------------------------------------------------------------
+- Privacidad total: Todos los cómputos se realizan localmente en el navegador del usuario.
+- Sin recolección de datos personales, cookies de rastreo ni venta de información.
+- Proyecto independiente de utilidad pública para la comunidad venezolana.
+
+Fecha de actualización de este documento: Septiembre 2026.
+================================================================================

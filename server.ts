@@ -118,6 +118,46 @@ async function fetchFromMirror(): Promise<{
   effectiveDate: string;
   eurRate?: number;
 }> {
+  // Try Mirror A: ExchangeRate-API (high parity with BCV)
+  try {
+    const [usdRes, eurRes] = await Promise.allSettled([
+      fetch('https://open.er-api.com/v6/latest/USD', {
+        headers: { 'User-Agent': 'ValoraApp/1.0 (VALORA Venezuela Exchange Calculator)' },
+        signal: AbortSignal.timeout(5000),
+      }),
+      fetch('https://open.er-api.com/v6/latest/EUR', {
+        headers: { 'User-Agent': 'ValoraApp/1.0 (VALORA Venezuela Exchange Calculator)' },
+        signal: AbortSignal.timeout(5000),
+      }),
+    ]);
+
+    if (usdRes.status === 'fulfilled' && usdRes.value.ok) {
+      const usdJson = await usdRes.value.json();
+      const vesRate = usdJson?.rates?.VES;
+      if (typeof vesRate === 'number' && vesRate > 0) {
+        let eurRate: number | undefined;
+        if (eurRes.status === 'fulfilled' && eurRes.value.ok) {
+          try {
+            const eurJson = await eurRes.value.json();
+            if (typeof eurJson?.rates?.VES === 'number' && eurJson.rates.VES > 0) {
+              eurRate = eurJson.rates.VES;
+            }
+          } catch {
+            // ignore
+          }
+        }
+        return {
+          rate: vesRate,
+          effectiveDate: usdJson.time_last_update_utc || new Date().toISOString(),
+          eurRate,
+        };
+      }
+    }
+  } catch {
+    // Continue to DolarAPI mirror
+  }
+
+  // Try Mirror B: DolarAPI
   const [dolarRes, euroRes] = await Promise.allSettled([
     fetch('https://ve.dolarapi.com/v1/dolares/oficial', {
       headers: { 'User-Agent': 'ValoraApp/1.0 (VALORA Venezuela Exchange Calculator)' },
