@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Handle benign [vite] HMR websocket connection in sandboxed preview iframe where HMR is disabled by platform
+      (function() {
+        var OrigWS = window.WebSocket;
+        if (OrigWS) {
+          var PatchedWS = function(url, protocols) {
+            var isViteHmr = protocols === 'vite-hmr' || 
+              (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1) ||
+              (typeof url === 'string' && (url.indexOf('vite-hmr') !== -1 || url.indexOf('token=') !== -1));
+            if (isViteHmr) {
+              var target = new EventTarget();
+              var mock = {
+                CONNECTING: 0,
+                OPEN: 1,
+                CLOSING: 2,
+                CLOSED: 3,
+                readyState: 1,
+                url: url,
+                protocol: 'vite-hmr',
+                extensions: '',
+                binaryType: 'blob',
+                bufferedAmount: 0,
+                send: function() {},
+                close: function() {
+                  mock.readyState = 3;
+                  var ev = new Event('close');
+                  mock.dispatchEvent(ev);
+                  if (typeof mock.onclose === 'function') mock.onclose(ev);
+                },
+                addEventListener: function() { target.addEventListener.apply(target, arguments); },
+                removeEventListener: function() { target.removeEventListener.apply(target, arguments); },
+                dispatchEvent: function() { return target.dispatchEvent.apply(target, arguments); },
+                onopen: null,
+                onclose: null,
+                onerror: null,
+                onmessage: null
+              };
+              setTimeout(function() {
+                var ev = new Event('open');
+                mock.dispatchEvent(ev);
+                if (typeof mock.onopen === 'function') mock.onopen(ev);
+              }, 10);
+              return mock;
+            }
+            return new OrigWS(url, protocols);
+          };
+          PatchedWS.prototype = OrigWS.prototype;
+          PatchedWS.CONNECTING = 0;
+          PatchedWS.OPEN = 1;
+          PatchedWS.CLOSING = 2;
+          PatchedWS.CLOSED = 3;
+          window.WebSocket = PatchedWS;
+        }
+
+        function hasVite(arg) {
+          if (!arg) return false;
+          if (typeof arg === 'string') return arg.indexOf('[vite]') !== -1;
+          if (arg.message && typeof arg.message === 'string') return arg.message.indexOf('[vite]') !== -1;
+          return false;
+        }
+        var origError = console.error;
+        var origWarn = console.warn;
+        console.error = function() {
+          for (var i = 0; i < arguments.length; i++) {
+            if (hasVite(arguments[i])) return;
+          }
+          origError.apply(console, arguments);
+        };
+        console.warn = function() {
+          for (var i = 0; i < arguments.length; i++) {
+            if (hasVite(arguments[i])) return;
+          }
+          origWarn.apply(console, arguments);
+        };
+
+        window.addEventListener('error', function(event) {
+          if (hasVite(event.message) || hasVite(event.error)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (hasVite(event.reason)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        }, true);
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>VALORA — Calculadora y conversor con tasa oficial BCV</title>
+    <meta name="description" content="VALORA es una calculadora venezolana rápida y sencilla para convertir dólares y bolívares utilizando la tasa oficial del Banco Central de Venezuela." />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="VALORA" />
+    <meta property="og:title" content="VALORA — Calculadora y conversor con tasa oficial BCV" />
+    <meta property="og:description" content="Calculadora inteligente de valores para Venezuela. Tu valor, actualizado." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
+  <body class="h-full bg-white text-black antialiased selection:bg-slate-200 selection:text-black">
+    <div id="root" class="h-full"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

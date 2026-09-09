@@ -1,0 +1,6 @@
+{
+  "name": "VALORA",
+  "description": "Calculadora y conversor con tasa oficial del Banco Central de Venezuela (BCV). Tu valor, actualizado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
